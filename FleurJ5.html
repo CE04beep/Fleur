@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Fleurs</title>
+<style>
+  html, body {
+    margin: 0;
+    min-height: 100%;
+  }
+  body {
+    background-color: #c0e8c3;
+  }
+  #entete {
+  background-color: #e8f5e9;
+  text-align: center;
+  padding: 4px 4px 4px 4px;
+}
+#entete h1 {
+  margin: 0 0 6px 0;
+  font-size: 24px;
+  color: #135813;
+}
+#entete .objectif {
+  margin: 0;
+  font-size: 14px;
+  color: #0c4710;
+}
+  #barre-ressources {
+  position: sticky;
+  top: 0;
+  background-color: #488848;
+  color: #f4f5f4;
+  padding: 6px 12px;
+  border-bottom: 2px solid #0c4710;
+  border-top: 2px solid #0c4710;
+  z-index: 10;
+  text-align: center;
+}
+#barre-ressources .ressources { margin: 0; }
+#barre-ressources .ressource {
+  padding-right: 20px;
+  margin-right: 20px;
+  border-right: 1px solid #f4f5f4;
+}
+#barre-ressources .ressource:last-child {
+  border-right: none;
+  margin-right: 0;
+}
+#boite-gain {
+  background-color: #c0e8c3;
+  text-align: center;
+  padding: 2px;
+}
+#boite-gain p { margin: 0; }
+#boite-gain .texteExplication {
+  font-size: 12px;
+  color: #0c4710;
+  margin-bottom : 2px;
+}
+#boite-gain .gain-calcule {
+   font-size: 14px;
+   color: #0c4710; 
+   margin-bottom: 4px;
+  }
+
+  /* Ressources en haut de page */
+  .ressource { margin-right: 20px; }
+  .icone-verdance::before { content: "🌿"; }
+  .icone-vitesse::before { content: "⏱"; 
+   color: #0c4710;
+  }
+  .icone-petalesblancs::before {
+    content: "✾";
+    color: #f4f5f4;
+    text-shadow: 0 0 2px #135813;
+  }
+  .icone-cycle::before {
+    content: "꩜";
+    color: #135813;
+    line-height: 1;
+  }
+
+  /* Icônes de pétales (titre et ligne des barres) */
+  .icone-petale::before {
+    content: "✾";
+    color: #135813;
+    text-shadow: 0 0 2px #135813;
+  }
+  .icone-petale {
+    margin-left: 0;
+    margin-right: 2px;
+    opacity: 0.3;
+  }
+  .icone-petale.plein { opacity: 1; }
+  .icone-fleur {
+    color: #135813;
+    line-height: 1;
+    text-shadow: 0 0 2px #135813;
+    font-size: 18px;
+    transform: translateX(2px);
+  }
+  /* Même largeur pour les deux icônes de ligne : les barres démarrent au même endroit */
+  .icone-fleur, .ligne .icone-petale { width: 12px; margin-right: 0px; line-height: 1;}
+
+  /* Jardin et cadre d'une fleur */
+  #barre-parterre {
+  position: sticky;
+  z-index: 9;  
+  background-color: #4ba14b;
+  color: #f4f5f4;
+  padding: 6px 12px;
+  border-bottom: 2px solid #0c4710;
+  border-top: 2px solid #0c4710;
+  text-align: left;
+  margin-bottom: 4px;
+}
+
+  #jardin {
+    padding-left: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: stretch;
+  }
+  .fleur {
+    border: 2px solid rgb(22, 162, 22);
+    padding: 1px;
+    border-radius: 4px;
+    width: 800px;
+    height: 95px;
+    background-color: rgb(124, 180, 124);
+    box-sizing: border-box;
+    display: flex;
+  }
+  .colonne-gauche {
+    width: 560px;
+    flex-shrink: 0;
+  }
+  .colonne-boutons {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .boutons {
+    display: flex;
+    flex-wrap: wrap;
+  }
+.colonne-boutons button {
+  background-color: #0c4710;
+  color: #f4f5f4;
+  width: 230px;
+  white-space: nowrap;
+  line-height: 1;
+  min-height: 20px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+.colonne-boutons button:disabled {
+  opacity: 0.3;
+}
+.ligne-vitesse {
+  display: flex;
+}
+.ligne-vitesse button {
+  width: 115px;
+}
+  /* Titre */
+  .titre-fleur {
+    text-align: center;
+    margin-top: 2px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    color: #0c4710;
+    font-weight: 550;
+  }
+  .emplacements { margin-left: 12px; }
+  .gain-cycle, .gain-bonus {
+    margin-left: 8px;
+    font-size: 12px;
+    color: #135813;
+    font-weight: normal;
+  }
+  .gain-cycle { line-height: 1; }
+  .gain-bonus { opacity: 0.3; }
+  .gain-bonus.plein { opacity: 1; }
+
+  /* Barres */
+  .ligne {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+  }
+  .zone-barre {
+    position: relative;
+    display: inline-block;
+  }
+  .barre-fleur, .barre-petale {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 2px solid #135813;
+    border-radius: 6px;
+    background-color: #000000;
+    overflow: hidden;
+  }
+  .barre-fleur  { width: 540px; height: 20px; display: block; }
+  .barre-petale { width: 50px;  height: 16px; display: block;}
+  .barre-fleur::-webkit-progress-bar, .barre-petale::-webkit-progress-bar { background-color: #000000; }
+  .barre-fleur::-webkit-progress-value  { background-color: #0c4710; }
+  .barre-fleur::-moz-progress-bar       { background-color: #0c4710; }
+  .barre-petale::-webkit-progress-value { background-color: #f5f5f0; }
+  .barre-petale::-moz-progress-bar      { background-color: #f5f5f0; }
+
+  /* Textes posés sur les barres */
+  .temps-fleur {
+    position: absolute;
+    right: 8px;
+    top: 0;
+    line-height: 20px;
+    font-size: 12px;
+    color: rgb(6, 197, 47);
+    pointer-events: none;
+  }
+  .cycle-fleur {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    text-align: center;
+    line-height: 20px;
+    font-size: 12px;
+    color: rgb(10, 213, 54);
+    pointer-events: none;
+  }
+  .temps-petale {
+    position: absolute;
+    right: 5px;
+    top: 0;
+    line-height: 16px;
+    font-size: 9px;
+    color: rgb(10, 213, 54);
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <div id="entete">
+    <h1>Jardin de Verdance</h1>
+    <p class="objectif">L'objectif est de compléter l'ensemble des pétales de chaque fleur.</p>
+  </div>
+  <div id="barre-ressources">
+    <p class="ressources">
+      <span class="ressource">Verdance : <span class="icone-verdance"></span> <span id="verdance">0</span></span>
+      <span class="ressource">Pétales Blancs : <span class="icone-petalesblancs"></span> <span id="petalesblancs">0</span></span>
+      <span class="ressource">Cycles Finis : <span class="icone-cycle"></span> <span id="cyclesfinis">0</span></span>
+    </p>
+  </div>
+  <div id="boite-gain">
+    <p class="texteExplication">Gain <span class="icone-verdance"></span> par fleur complétée = 1 × 1.01<sup><span class="icone-cycle"></span></sup> × (1 + 0.001 x <span class="icone-petalesblancs"></span>) x bonus de la fleur si complète</p>
+    <p class="gain-calcule">Gain <span class="icone-verdance"></span> actuel : <strong id="gainparfleur"></strong> <span id="detailgain"></span></p>
+    <p class="texteExplication">Chaque barre de pétale terminée donne 1 pétale blanc (+0,1 % de gain). Elle dure un quart de la durée de sa fleur.</p>
+    <p class="texteExplication"><span class="icone-vitesse"></span> Chaque niveau de vitesse réduit la durée de la fleur de 10 %. <span class="icone-vitesse"></span>×5 achète 5 niveaux d’un coup (-41%) et n'est plus disponible lorsqu'il reste moins de 5 niveaux.</p>
+  </div>
+  <div id="barre-parterre">
+     <span>Parterre de Fleurs </span>
+     <button id ="boutonRepli">▼ Replier</button>
+  </div>
+  <div id="jardin"></div>
+</body>
+<script>
+
+// ============================================================
+// ÉTAT DU JEU
+// ============================================================
+let verdance = 0;
+let petalesBlancs = 0;
+let cyclesFinis = 0;
+let gainDeBase = 1;
+let multiplicateur = 1;
+
+// ============================================================
+// ÉLÉMENTS DE LA PAGE
+// ============================================================
+const affichageVerdance = document.getElementById("verdance");
+const affichagePetalesBlancs = document.getElementById("petalesblancs");
+const affichageCyclesFinis = document.getElementById("cyclesfinis");
+const affichageGainParFleur = document.getElementById("gainparfleur");
+const affichageDetailGain = document.getElementById("detailgain");
+const jardin = document.getElementById("jardin");
+
+const ICONES = {
+  verdance: "🌿",
+  fleur: "⚘",
+  petale: "✾",
+  cycle: "꩜",
+  vitesse: "⏱"
+};
+
+// ============================================================
+// RÉGLAGES
+// ============================================================
+const FRACTION_PETALE = 0.25;   // ⚠ si tu changes ça, modifie aussi le texte « un quart » dans la phrase d'explication
+const FACTEUR_VITESSE = 0.9;    // chaque amélioration de vitesse multiplie la durée par 0.9
+const BONUS_FLEUR = 0.2;        // bonus d'une fleur complète = 0.1 × fibo(numéro)
+const DEPART_PETALE = 1.5;   // le pétale 1 coûte 1.5 × le prix de sa fleur
+const PROGRESSION_PETALE = 2;  // chaque pétale coûte 2 × le précédent
+const CROISSANCE_VITESSE = [1.468, 1.266, 1.191, 1.155, 1.133, 1.118, 1.109, 1.103, 1.098, 1.094];
+
+const noms = ["Arum", "Fleur jumelle", "Trille", "Fuchsia", "Eglantier", "Tulipe", "Fleur septétoile", "Cosmos", "Fleur ennéa", "Anémone"];
+const reglages = [];
+for (let n = 1; n <= 10; n++) {
+  reglages.push({
+    numero: n,
+    nom: noms[n - 1],
+    nbPetales: n,
+    duree: 10 * 4 ** (n - 1),
+    prix: n === 1 ? 0 : 5 * 5 ** (n - 2)
+  });
+}
+
+// ============================================================
+// FONCTIONS
+// ============================================================
+function ajusterBarre() {
+  const hauteur = document.getElementById("barre-ressources").getBoundingClientRect().height;
+  document.getElementById("barre-parterre").style.top = hauteur + "px";
+}
+ajusterBarre();
+window.addEventListener("resize", ajusterBarre);
+
+function afficherVerdance() {
+  affichageVerdance.textContent = formaterVerdance(verdance);
+}
+
+function mettreAJourGain() {
+  let bonusCycles = 1.01 ** cyclesFinis;
+  let bonusPetales = 1 + 0.001 * petalesBlancs;
+  multiplicateur = bonusCycles * bonusPetales;
+  affichageGainParFleur.textContent = (gainDeBase * multiplicateur).toFixed(5);
+  affichageDetailGain.textContent = "(" + gainDeBase + " × " + bonusCycles.toFixed(2) + " × " + bonusPetales.toFixed(4) + ")";
+}
+
+function mettreAJourBoutons() {
+  for (const p of petales) {
+    p.bouton.disabled = verdance < p.prix || !p.fleur.achete || fleurComplete(p.fleur);
+    if (fleurComplete(p.fleur) && p.rang === p.fleur.nbPetales - 1) {
+      p.bouton.style.display = "inline-block";
+      p.bouton.textContent = ICONES.petale + " Complets";
+    } 
+    else if (!p.achete && p.rang === p.fleur.petalesAchetes) {
+      p.bouton.style.display = "inline-block";
+    }
+    else {
+      p.bouton.style.display = "none";
+}
+    // Seul le prochain pétale à acheter est visible
+   // if (!p.achete && p.rang === p.fleur.petalesAchetes) {
+   //   p.bouton.style.display = "inline-block";
+   // } else {
+   //   p.bouton.style.display = "none";
+    //}
+  }
+  for (const f of fleurs) {
+    if (f.bouton) {
+      f.bouton.disabled = verdance < f.prix || f.achete ;
+    }
+    f.boutonCycle.disabled = verdance < prixCycle(f.numero, f.cycle) || f.completions < seuil(f.cycle);
+    f.boutonVitesse.disabled = verdance < prixVitesse(f.numero, f.niveauVitesse) || !f.achete || (dureeActuelle(f) <= plancherDuree(f));
+    f.boutonVitesse5.disabled = verdance <prixVitesseLot(f.numero, f.niveauVitesse, 5) || !f.achete || (dureeActuelle(f) <= plancherDuree(f)) || !lotPossible(f) ;
+  }
+}
+
+function formaterTemps(secondes) {
+  secondes = Math.round(secondes);
+  if (secondes < 60) {
+    return secondes + " s";
+  }
+  if (secondes < 3600) {
+    let minutes = Math.floor(secondes / 60);
+    let reste = secondes % 60;
+    return minutes + " min " + reste + " s";
+  }
+  if (secondes < 86400) {
+    let heures = Math.floor(secondes / 3600);
+    let reste = secondes % 3600;
+    let minutes = Math.floor(reste / 60);
+    return heures + " h " + minutes + " min";
+  }
+  let jours = Math.floor(secondes / 86400);
+  let reste = secondes % 86400;
+  let heures = Math.floor(reste / 3600);
+  return jours + " j " + heures + " h";
+}
+
+function formaterDuree(secondes) {
+  if (secondes < 60) {
+    return secondes.toFixed(2) + " s";
+  }
+  return formaterTemps(secondes);
+}
+
+function formaterNombre(x) {
+  if (x < 1e6) {
+    return Math.round(x).toLocaleString("fr-FR");
+  }
+  return x.toExponential(2);
+}
+
+function formaterVerdance(x) {
+  if (x < 1000) {
+    return x.toFixed(5);
+  }
+  return formaterNombre(x);
+}
+
+
+// Suite 1, 2, 3, 5, 8...
+function fibo(n) {
+  let a = 1;
+  let b = 2;
+  for (let i = 1; i < n; i++) {
+    let suivant = a + b;
+    a = b;
+    b = suivant;
+  }
+  return a;
+}
+
+// Seuil de complétions d'un cycle : 10, 20, 30, 50, 80...
+function seuil(cycle) {
+  let a = 10;
+  let b = 20;
+  for (let i = 0; i < cycle; i++) {
+    let suivant = a + b;
+    a = b;
+    b = suivant;
+  }
+  return a;
+}
+
+function prixCycle(numero, cycle) {
+  return seuil(cycle) * 6 ** (numero - 1) * 1.6 ** cycle * 0.5;
+}
+
+function prixVitesse(numero, niveau) {
+  return 10 * 4 ** (numero - 1) * CROISSANCE_VITESSE[numero-1] ** niveau;
+}
+
+function prixVitesseLot(numero, niveau, quantite) {
+  let total = 0;
+  for (let i = 0; i < quantite; i++) {
+    total = total + prixVitesse(numero, niveau + i);
+  }
+  return total;
+}
+
+function lotPossible(f) {
+  return f.dureeBase * FACTEUR_VITESSE ** (f.niveauVitesse + 4) > plancherDuree(f);
+}
+function plancherDuree(f) {
+  return f.numero * 5;
+}
+
+function dureeActuelle(f) {
+  return Math.max(plancherDuree(f), f.dureeBase * FACTEUR_VITESSE ** f.niveauVitesse);
+}
+
+function fleurComplete(f) {
+  return f.petalesAchetes === f.nbPetales;
+}
+
+function valeurBonus(numero) {
+  return 1 + BONUS_FLEUR * fibo(numero);
+}
+
+function bonusFleur(f) {
+  if (fleurComplete(f)) {
+    return valeurBonus(f.numero);
+  }
+  return 1;
+}
+
+function achatsPossibles() {
+  const liste = [];
+  for (const f of fleurs) {
+    if (!f.bouton.disabled) {
+      liste.push({ prix: f.prix, bouton: f.bouton });
+    }
+    if (!f.boutonVitesse.disabled) {
+    liste.push({ prix: prixVitesse(f.numero, f.niveauVitesse), bouton: f.boutonVitesse });
+    }
+    if (!f.boutonCycle.disabled) {
+    liste.push({ prix: prixCycle(f.numero, f.cycle), bouton: f.boutonCycle });
+    }
+  }
+  for (const p of petales) {
+  if (!p.bouton.disabled && p.bouton.style.display !== "none") {
+  liste.push({ prix: p.prix, bouton: p.bouton });
+  }
+  }
+  return liste;
+}
+
+// ============================================================
+// FABRICATION DES FLEURS
+// ============================================================
+const fleurs = [];
+const petales = [];
+
+for (const r of reglages) {
+  // Structure
+  const maDiv = document.createElement("div");
+  maDiv.className = "fleur";
+  const luminosite = 75 - (r.numero - 1) * 4;
+  maDiv.style.backgroundColor = "hsl(120, 35%, " + luminosite + "%)";
+  const colonneGauche = document.createElement("div");
+  colonneGauche.className = "colonne-gauche";
+  const colonneDroite = document.createElement("div");
+  colonneDroite.className = "colonne-boutons";
+
+  // Titre : nom, icônes de pétales, gain de cycle, bonus de fleur complète
+  const titre = document.createElement("p");
+  titre.className = "titre-fleur";
+  titre.textContent = r.nom;
+
+  const emplacements = document.createElement("span");
+  emplacements.className = "emplacements";
+  const icones = [];
+  for (let i = 0; i < r.nbPetales; i++) {
+    const icone = document.createElement("span");
+    icone.className = "icone-petale";
+    emplacements.appendChild(icone);
+    icones.push(icone);
+  }
+  titre.appendChild(emplacements);
+
+  const gainCycle = document.createElement("span");
+  gainCycle.className = "gain-cycle";
+  gainCycle.textContent = " " + ICONES.cycle + "+" + r.numero + " par cycle terminé";
+  titre.appendChild(gainCycle);
+
+  const gainBonus = document.createElement("span");
+  gainBonus.className = "gain-bonus";
+  gainBonus.textContent = " (Gain ×" + valeurBonus(r.numero).toFixed(1) + " si fleur complète)";
+  titre.appendChild(gainBonus);
+
+  colonneGauche.appendChild(titre);
+
+  // Grosse barre
+  const barre = document.createElement("progress");
+  barre.className = "barre-fleur";
+  barre.max = 100;
+  barre.value = 0;
+  if (r.numero > 1) {
+    barre.style.display = "none";
+  }
+  const tempsAffiche = document.createElement("span");
+  tempsAffiche.className = "temps-fleur";
+  const cycleAffiche = document.createElement("span");
+  cycleAffiche.className = "cycle-fleur";
+
+  const zoneBarre = document.createElement("div");
+  zoneBarre.className = "zone-barre";
+  zoneBarre.appendChild(barre);
+  zoneBarre.appendChild(tempsAffiche);
+  zoneBarre.appendChild(cycleAffiche);
+
+  const iconeFleur = document.createElement("span");
+  iconeFleur.className = "icone-fleur";
+  iconeFleur.textContent = ICONES.fleur;
+
+  const ligneFleur = document.createElement("div");
+  ligneFleur.className = "ligne";
+  ligneFleur.appendChild(iconeFleur);
+  ligneFleur.appendChild(zoneBarre);
+  colonneGauche.appendChild(ligneFleur);
+
+  // Barres de pétales
+  const barresPetales = [];
+  const textesPetales = [];
+  const vraiesBarres = [];
+  for (let i = 0; i < r.nbPetales; i++) {
+    const barrePetale = document.createElement("progress");
+    barrePetale.className = "barre-petale";
+    barrePetale.max = 100;
+    barrePetale.value = 0;
+    const tempsPetaleAffiche = document.createElement("span");
+    tempsPetaleAffiche.className = "temps-petale";
+    const zoneBarrePetale = document.createElement("div");
+    zoneBarrePetale.className = "zone-barre";
+    zoneBarrePetale.style.display = "none";
+    zoneBarrePetale.appendChild(barrePetale);
+    zoneBarrePetale.appendChild(tempsPetaleAffiche);
+    barresPetales.push(zoneBarrePetale);
+    textesPetales.push(tempsPetaleAffiche);
+    vraiesBarres.push(barrePetale);
+  }
+
+  const iconePetaleBarre = document.createElement("span");
+  iconePetaleBarre.className = "icone-petale plein";
+  const lignePetales = document.createElement("div");
+  lignePetales.className = "ligne";
+  lignePetales.appendChild(iconePetaleBarre);
+  for (const b of barresPetales) {
+    lignePetales.appendChild(b);
+  }
+  colonneGauche.appendChild(lignePetales);
+
+  // Boutons (ordre d'affichage : fleur, pétales, cycle, vitesse)
+const boutonFleur = document.createElement("button");
+if (r.numero === 1) {
+  boutonFleur.textContent = ICONES.fleur + " Acquise";
+} else {
+  boutonFleur.textContent = "Acheter " + ICONES.fleur + " (" + formaterNombre(r.prix) + " " + ICONES.verdance + ")";
+}
+colonneDroite.appendChild(boutonFleur);
+
+  const prixPetales = [];
+  const boutonsPetales = [];
+  const zoneBoutons = document.createElement("div");
+  zoneBoutons.className = "boutons";
+  for (let i = 0; i < r.nbPetales; i++) {
+    const bouton = document.createElement("button");
+    const prix = Math.round(DEPART_PETALE * 5 ** (r.numero - 1) * PROGRESSION_PETALE ** i);
+    prixPetales.push(prix);
+    bouton.textContent = "Acheter " + ICONES.petale + " (" + formaterNombre(prix) + " " + ICONES.verdance + ")";
+    boutonsPetales.push(bouton);
+    zoneBoutons.appendChild(bouton);
+  }
+  colonneDroite.appendChild(zoneBoutons);
+
+  const boutonCycle = document.createElement("button");
+  boutonCycle.textContent = "Terminer cycle 0 : +" + r.numero + ICONES.cycle;
+  colonneDroite.appendChild(boutonCycle);
+
+  const boutonVitesse = document.createElement("button");
+  boutonVitesse.textContent = ICONES.vitesse + "x1" ;
+  const boutonVitesse5 = document.createElement("button");
+  boutonVitesse5.textContent = ICONES.vitesse + "×5";
+  const ligneVitesse = document.createElement("div");
+  ligneVitesse.className = "ligne-vitesse";
+  ligneVitesse.appendChild(boutonVitesse);
+  ligneVitesse.appendChild(boutonVitesse5);
+  colonneDroite.appendChild(ligneVitesse);
+
+  // Objet fleur
+  const fleur = {
+    numero: r.numero,
+    nbPetales: r.nbPetales,
+    achete: r.numero === 1,
+    prix: r.prix,
+    progression: 0,
+    petalesAchetes: 0,
+    completions: 0,
+    cycle: 0,
+    dureeBase: r.duree,
+    niveauVitesse: 0,
+    barre: barre,
+    tempsAffiche: tempsAffiche,
+    cycleAffiche: cycleAffiche,
+    icones: icones,
+    gainBonus: gainBonus,
+    bouton: boutonFleur,
+    boutonCycle: boutonCycle,
+    boutonVitesse: boutonVitesse,
+    boutonVitesse5: boutonVitesse5,
+  };
+  fleurs.push(fleur);
+
+  // Objets pétales
+  for (let i = 0; i < r.nbPetales; i++) {
+    petales.push({
+      progression: 0,
+      achete: false,
+      rang: i,
+      prix: prixPetales[i],
+      fleur: fleur,
+      barre: vraiesBarres[i],
+      zone: barresPetales[i],
+      bouton: boutonsPetales[i],
+      tempsPetaleAffiche: textesPetales[i]
+    });
+  }
+
+  maDiv.appendChild(colonneGauche);
+  maDiv.appendChild(colonneDroite);
+  jardin.appendChild(maDiv);
+}
+
+// ============================================================
+// BOUTONS D'ACHAT
+// ============================================================
+let jardinRepli = false;
+boutonRepli.addEventListener("click", function () {
+  if (jardinRepli === true) {
+    jardin.style.display = "";
+    boutonRepli.textContent = "▼ Replier";
+    jardinRepli = false;
+  } else {
+    jardin.style.display = "none";
+    boutonRepli.textContent = "▶ Déplier";
+    jardinRepli = true;
+  }
+});
+
+for (const f of fleurs) {
+  if (f.bouton) {
+    f.bouton.addEventListener("click", function () {
+      if (verdance >= f.prix) {
+        verdance = verdance - f.prix;
+        afficherVerdance();
+        f.achete = true;
+        f.barre.style.display = "block";
+        f.bouton.textContent = ICONES.fleur + " Acquise"
+        mettreAJourBoutons();
+      }
+    });
+  }
+
+  f.boutonCycle.addEventListener("click", function () {
+    let prix = prixCycle(f.numero, f.cycle);
+    if (verdance >= prix) {
+      verdance = verdance - prix;
+      afficherVerdance();
+      f.cycle = f.cycle + 1;
+      cyclesFinis = cyclesFinis + f.numero;
+      affichageCyclesFinis.textContent = cyclesFinis;
+      f.completions = 0;
+      mettreAJourBoutons();
+      mettreAJourGain();
+    }
+  });
+
+  f.boutonVitesse.addEventListener("click", function () {
+    let prix = prixVitesse(f.numero, f.niveauVitesse);
+    if (verdance >= prix) {
+      verdance = verdance - prix;
+      afficherVerdance();
+      f.niveauVitesse = f.niveauVitesse + 1;
+      mettreAJourBoutons();
+    }
+  });
+  f.boutonVitesse5.addEventListener("click", function () {
+  let prix = prixVitesseLot(f.numero, f.niveauVitesse, 5);
+  if (verdance >= prix) {
+    verdance = verdance - prix;
+    afficherVerdance();
+    f.niveauVitesse = f.niveauVitesse + 5;
+    mettreAJourBoutons();
+  }
+});
+}
+
+for (const p of petales) {
+  p.bouton.addEventListener("click", function () {
+    if (verdance >= p.prix) {
+      verdance = verdance - p.prix;
+      afficherVerdance();
+      p.achete = true;
+      p.fleur.petalesAchetes = p.fleur.petalesAchetes + 1;
+      p.fleur.icones[p.fleur.petalesAchetes - 1].classList.add("plein");
+      p.zone.style.display = "inline-block";
+      if (fleurComplete(p.fleur)) {
+        p.fleur.gainBonus.classList.add("plein");
+        p.fleur.gainBonus.textContent = " (Gain ×" + valeurBonus(p.fleur.numero).toFixed(1) + ")";
+      }
+      mettreAJourBoutons();
+    }
+  });
+}
+
+// ============================================================
+// BOUCLES DU JEU (10 tours par seconde)
+// ============================================================
+setInterval(function () {
+  for (const f of fleurs) {
+    if (f.achete) {
+      let dureeF = dureeActuelle(f);
+      f.progression = f.progression + 100 / (dureeF * 10);
+      f.barre.value = f.progression;
+      f.barre.title = "Durée : " + formaterDuree(dureeF) + " (minimum : " + formaterDuree(plancherDuree(f)) + ")";
+      let tempsRestant = Math.max(0, (100 - f.progression) * dureeF * 0.01);
+      f.tempsAffiche.textContent = formaterTemps(tempsRestant);
+      f.cycleAffiche.textContent = "Cycle " + f.cycle + " : " + f.completions + "/" + seuil(f.cycle);
+      f.boutonCycle.textContent = "Terminer cycle " + f.cycle + " : +" + f.numero + ICONES.cycle + " (" + formaterNombre(prixCycle(f.numero, f.cycle)) + " " + ICONES.verdance + ")";
+
+      if (dureeF <= plancherDuree(f)) {
+        f.boutonVitesse.textContent = ICONES.vitesse + " Max";;
+      } else {
+        f.boutonVitesse.textContent = ICONES.vitesse + "x1 (" + formaterNombre(prixVitesse(f.numero, f.niveauVitesse)) + " " + ICONES.verdance + ")";
+        let suivante = Math.max(plancherDuree(f), dureeF * FACTEUR_VITESSE);
+        let texteSuivante = suivante <= plancherDuree(f) ? "Max" : formaterDuree(suivante);
+        f.boutonVitesse.title = formaterDuree(dureeF) + " → " + texteSuivante;
+      }
+      if (lotPossible(f)) {
+        f.boutonVitesse5.textContent = ICONES.vitesse + " ×5 (" + formaterNombre(prixVitesseLot(f.numero, f.niveauVitesse, 5)) + " " + ICONES.verdance + ")";
+        let suivante5 = Math.max(plancherDuree(f), dureeF * FACTEUR_VITESSE ** 5);
+        let texteSuivante5 = suivante5 <= plancherDuree(f) ? "Max" : formaterDuree(suivante5);
+        f.boutonVitesse5.title = formaterDuree(dureeF) + " → " + texteSuivante5;
+        } else {
+        f.boutonVitesse5.textContent = ICONES.vitesse + " ×5 ✕";
+        f.boutonVitesse5.title = formaterDuree(dureeF) + " → ✕";
+      }
+
+      if (f.progression >= 100) {
+        verdance = verdance + gainDeBase * multiplicateur * bonusFleur(f);
+        afficherVerdance();
+        f.progression = 0;
+        if (f.completions < seuil(f.cycle)) {
+          f.completions = f.completions + 1;
+        }
+      }
+    }
+  }
+  // Une fois par tour : les boutons se grisent / se dégrisent dès que la verdance le permet
+  mettreAJourBoutons();
+}, 100);
+
+setInterval(function () {
+  for (const p of petales) {
+    if (p.achete) {
+      let dureeP = dureeActuelle(p.fleur) * FRACTION_PETALE;
+      p.progression = p.progression + 100 / (dureeP * 10);
+      p.barre.value = p.progression;
+      let tempsRestant = Math.max(0, (100 - p.progression) * dureeP * 0.01);
+      p.tempsPetaleAffiche.textContent = formaterTemps(tempsRestant);
+      if (p.progression >= 100) {
+        petalesBlancs = petalesBlancs + 1;
+        affichagePetalesBlancs.textContent = formaterNombre(petalesBlancs);
+        p.progression = 0;
+        mettreAJourGain();
+      }
+    }
+  }
+}, 100);
+
+// ============================================================
+// DÉMARRAGE
+// ============================================================
+mettreAJourBoutons();
+mettreAJourGain();
+</script>
+</html>
